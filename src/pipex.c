@@ -34,6 +34,7 @@ void	ft_pipex(int counter, int fd[2], char *argv[], char **env)
 	pid = fork();
 	if (pid == 0)
 	{
+		printf("command:%s", argv[counter + 2]);
 		close(0);
 		dup(input);
 		close(1);
