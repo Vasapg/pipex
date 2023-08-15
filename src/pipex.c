@@ -6,48 +6,64 @@
 /*   By: vsanz-ar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/05 19:56:01 by vsanz-ar          #+#    #+#             */
-/*   Updated: 2023/08/05 21:07:34 by vsanz-ar         ###   ########.fr       */
+/*   Updated: 2023/08/10 19:12:07 by vsanz-ar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include<stdio.h>
-#include<stdlib.h>
-#include<fcntl.h>
+#include "pipex.h"
 
-void dad(char *argv[], int fd[2], int child)
+void	child(char *const command, char *const *flags, char **env)
 {
-	char buff[2048];
-
-	//waitpid(child, NULL, NULL);
-	read(fd[0], buff, 2048);
-	printf("%s", buff);
+	execute_command(env, command, flags);
 }
 
-void child(char *argv[], int fd[2])
+void	ft_pipex(int counter, int fd[2], char *argv[], char **env)
 {
-	fd = open(argv[1], O_RDONLY);
-	dup2(fd[1], 0);
-	execvp(argv[2], "");
+	int		input;
+	int		output;
+	int		pid;
+	char	**flags;
+
+	if (counter == 0)
+		input = open(argv[1], O_RDONLY | O_CREAT, 0777);
+	else
+		input = fd[0];
+	if (counter == 1)
+		output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	else
+		output = fd[1];
+	pid = fork();
+	if (pid == 0)
+	{
+		close(0);
+		dup(input);
+		close(1);
+		dup(output);
+		flags = flags_builder(argv[counter + 2]);
+		child(argv[counter + 2], flags, env);
+	}
 }
 
-int	main(int argc, char *argv[])
+int	main(int argc, char *argv[], char **env)
 {
 	int	err;
 	int	fd[2];
+	int	i;
 
-/*	if (argc != 5)
+	i = 0;
+	if (argc != 5)
 	{
 		perror("Error, uso: archivo 1 comando 1 comando 2 archivo 2");
 		return (-1);
-	}*/
+	}
 	err = pipe(fd);
 	if (err == -1)
 	{
 		perror("Error al crear la pipe");
 		return (-1);
 	}
-	err = fork();
-	if (err != 0 && err != -1)
-		dad(argv, fd, err);
-	else if (err == 0)
-		child(argv, fd);
+	while (i < 2)
+	{
+		ft_pipex(i, fd, argv, env);
+		i++;
+	}
 }
