@@ -11,4 +11,13 @@
 /* ************************************************************************** */
 
 #include <stdio.h>
+#include<stdlib.h>
+#include<fcntl.h>
+#include<unistd.h>
 #include "libft/libft.h"
+
+void	child(char *const command, char *const *flags, char **env);
+void    ft_pipex(int counter, int fd[2], char *argv[], char **env);
+int	    main(int argc, char *argv[], char **env);
+char	**flags_builder(char *argv);
+void	execute_command(char **env, char *const command, char *const *flags);
