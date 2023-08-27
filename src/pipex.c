@@ -11,37 +11,48 @@
 /* ************************************************************************** */
 #include "pipex.h"
 
-void	child(char *const command, char *const *flags, char **env)
-{
-	execute_command(env, command, flags);
-}
-
-void	ft_pipex(int counter, int fd[2], char *argv[], char **env)
+int check_acces(char *argv[], int counter, int fd[2])
 {
 	int		input;
 	int		output;
+	
+	if(counter == 0 && access(argv[1], R_OK) != -1)
+		input = open(argv[1], O_RDONLY, 0777);
+	else if (counter != 0)
+		perror("No existe permiso de lectura para el fichero de entrada");
+	else
+		input = fd[IN];
+
+	if (counter == 1 && access(argv[4], W_OK) == -1)
+		output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+
+
+
+	if (counter == 0 && access(argv[1], R_OK) == -1)
+	if (counter == 1 && access(argv[4], W_OK) == -1)
+		perror("No existe permiso de escritura para el fichero de salida");
+	return (1);
+}
+
+int	ft_pipex(int counter, int fd[2], char *argv[], char **env)
+{
 	int		pid;
 	char	**flags;
 
-	if (counter == 0)
-		input = open(argv[1], O_RDONLY | O_CREAT, 0777);
-	else
-		input = fd[0];
-	if (counter == 1)
-		output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	else
-		output = fd[1];
 	pid = fork();
 	if (pid == 0)
 	{
-		printf("command:%s", argv[counter + 2]);
-		close(0);
-		dup(input);
-		close(1);
-		dup(output);
+		check_acces(argv, counter);
 		flags = flags_builder(argv[counter + 2]);
-		child(argv[counter + 2], flags, env);
+		close(IN);
+		dup(input);
+		close(OUT);
+		dup(output);
+		close(fd[IN]);
+		close(fd[OUT]);
+		execute_command(env, flags[0], flags);
 	}
+	return (pid);
 }
 
 int	main(int argc, char *argv[], char **env)
@@ -49,6 +60,7 @@ int	main(int argc, char *argv[], char **env)
 	int	err;
 	int	fd[2];
 	int	i;
+	int	pid;
 
 	i = 0;
 	if (argc != 5)
@@ -64,7 +76,10 @@ int	main(int argc, char *argv[], char **env)
 	}
 	while (i < 2)
 	{
-		ft_pipex(i, fd, argv, env);
+		pid = ft_pipex(i, fd, argv, env);
 		i++;
 	}
+	close(fd[0]);
+	close(fd[1]);
+	waitpid(pid, 0, 0);
 }

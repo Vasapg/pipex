@@ -11,30 +11,17 @@
 /* ************************************************************************** */
 #include "pipex.h"
 
-char	**flags_builder(char *argv)
+char	**flags_builder(char *command)
 {
-	int		i;
 	char	**flags;
-	char	*free_me;
 
-	i = 1;
-	flags = ft_split(argv, ' ');
-	free(flags[0]);
-	while (flags[i])
-	{
-		free_me = flags[i];
-		flags[i - 1] = flags[i];
-		free(free_me);
-		i++;
-	}
+	flags = ft_split(command, ' ');
 	return (flags);
 }
 
-void	execute_command(char **env, char *const command, char *const *flags)
+char	*get_path(char **env)
 {
 	int		i;
-	char	**paths;
-	char	*path;
 	int		found;
 
 	found = 0;
@@ -42,22 +29,31 @@ void	execute_command(char **env, char *const command, char *const *flags)
 	while (env[i] && found == 0)
 	{
 		if (ft_strncmp("PATH=", env[i], 5) == 0)
-			found = 1;
-		else
-			i++;
+			return (env[i]);
+		i++;
 	}
-	printf("%s\n", env[i]);
-	paths = ft_split(env[i], ':');
+	return (NULL);
+}
+
+void	execute_command(char **env, char *const command, char **flags)
+{
+	int		i;
+	char	**paths;
+	char	*path;
+
+	paths = ft_split(get_path(env), ':');
 	paths[0] = ft_substr(paths[0], 5, 100);
 	i = 0;
 	while (paths[i])
 	{
-		printf("path numero %i :%s \n", i, paths[i]);
 		path = ft_strjoin (paths[i], "/");
 		path = ft_strjoin (path, command);
-		printf("path final: %s \n", path);
+		flags[0] = path;
+		//printf("path final: %s\n", path);
 		execve(path, flags, env);
 		i++;
 	}
-	printf("Error Comando no encontrado");
+	printf("ejecuto path directo: %s\n", command);
+	execve(command, flags, env);
+
 }

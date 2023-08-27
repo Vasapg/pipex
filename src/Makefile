@@ -38,8 +38,9 @@ clean:
 	${RM} ${FOBJ} ${BOBJ} test.out
 
 fclean: clean
+	@make fclean -C ${LIBPATH}
 	${RM} ${LIBA}
-	${RM} ${NAME}
+	${RM} ${NAME} pipex
 
 re: fclean all
 
