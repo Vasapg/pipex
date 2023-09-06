@@ -1,5 +1,5 @@
--Devolver estado de ultimo comando
--Manejar correctamente los errores de descriptores
--Path absolutos sin la variable PATH en el env no funcionan
--./ls no deberia funcionar
+-Devolver estado de ultimo comando ✅
+-Manejar correctamente los errores de descriptores 
+-Path absolutos sin la variable PATH en el env no funcionan 
+-./ls no deberia funcionar ✅
 -Crear fichero de salida si no existe

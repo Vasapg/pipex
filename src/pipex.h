@@ -21,7 +21,7 @@
 # define IN 0
 # define OUT 1
 
-int		ft_pipex(int counter, int fd[2], char *argv[], char **env);
+int		ft_pipex(int fd[2], char *argv[], char **env);
 int		main(int argc, char *argv[], char **env);
 char	**flags_builder(char *command);
 char	*get_path(char **env);

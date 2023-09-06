@@ -50,19 +50,27 @@ int	check_acces(char *argv[], int counter, int fd[2])
 	return (input);
 }
 
-int	ft_pipex(int counter, int fd[2], char *argv[], char **env)
+int	ft_pipex(int fd[2], char *argv[], char **env)
 {
 	int		pid;
 	char	**flags;
+	int		counter;
 
-	pid = fork();
-	if (pid == 0)
+	counter = 0;
+	while (counter < 2)
 	{
-		if (check_acces(argv, counter, fd) == -1)
-			exit(1);
-		flags = flags_builder(argv[counter + 2]);
-		execute_command(env, flags[0], flags);
+		pid = fork();
+		if (pid == 0)
+		{
+			if (check_acces(argv, counter, fd) == -1)
+				exit(1);
+			flags = flags_builder(argv[counter + 2]);
+			execute_command(env, flags[0], flags);
+		}
+		counter++;
 	}
+	close(fd[IN]);
+	close(fd[OUT]);
 	return (pid);
 }
 
@@ -70,10 +78,9 @@ int	main(int argc, char *argv[], char **env)
 {
 	int	err;
 	int	fd[2];
-	int	i;
-	int	*status;
+	int	status;
 
-	i = 0;
+	status = 0;
 	if (argc != 5)
 	{
 		perror("Error, uso: archivo 1 comando 1 comando 2 archivo 2");
@@ -84,14 +91,9 @@ int	main(int argc, char *argv[], char **env)
 		perror("Error al crear la pipe");
 		return (-1);
 	}
-	while (i < 2)
-	{
-		err = ft_pipex(i, fd, argv, env);
-		i++;
-	}
-	status = malloc(sizeof(int));
-	close(fd[IN]);
-	close(fd[OUT]);
-	waitpid(err, status, 0);
-	exit(*status);
+	err = ft_pipex(fd, argv, env);
+	waitpid(err, &status, 0);
+	if (WIFEXITED(status))
+		exit(WEXITSTATUS(status));
+	exit(-1);
 }
