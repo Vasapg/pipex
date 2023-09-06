@@ -55,5 +55,5 @@ void	execute_command(char **env, char *const command, char **flags)
 	}
 	printf("ejecuto path directo: %s\n", command);
 	execve(command, flags, env);
-
+	close()
 }
