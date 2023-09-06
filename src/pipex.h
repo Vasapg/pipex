@@ -10,14 +10,21 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include<stdlib.h>
-#include<fcntl.h>
-#include<unistd.h>
-#include "libft/libft.h"
+#ifndef PIPEX_H
+# define PIPEX_H
+# include <stdio.h>
+# include <stdlib.h>
+# include <fcntl.h>
+# include <unistd.h>
+# include <sys/wait.h>
+# include "libft/libft.h"
+# define IN 0
+# define OUT 1
 
-void	child(char *const command, char *const *flags, char **env);
-void    ft_pipex(int counter, int fd[2], char *argv[], char **env);
-int	    main(int argc, char *argv[], char **env);
-char	**flags_builder(char *argv);
-void	execute_command(char **env, char *const command, char *const *flags);
+int		ft_pipex(int counter, int fd[2], char *argv[], char **env);
+int		main(int argc, char *argv[], char **env);
+char	**flags_builder(char *command);
+char	*get_path(char **env);
+void	execute_command(char **env, char *const command, char **flags);
+int     check_acces(char *argv[], int counter);
+#endif
