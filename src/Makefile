@@ -6,7 +6,7 @@
 #    By: vsanz-ar <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/28 13:51:49 by vsanz-ar          #+#    #+#              #
-#    Updated: 2023/08/15 14:37:03 by vsanz-ar         ###   ########.fr        #
+#    Updated: 2023/09/06 18:43:47 by vsanz-ar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,7 +40,7 @@ clean:
 fclean: clean
 	@make fclean -C ${LIBPATH}
 	${RM} ${LIBA}
-	${RM} ${NAME} pipex
+	${RM} ${NAME} 
 
 re: fclean all
 

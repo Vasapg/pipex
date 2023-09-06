@@ -44,16 +44,23 @@ void	execute_command(char **env, char *const command, char **flags)
 	paths = ft_split(get_path(env), ':');
 	paths[0] = ft_substr(paths[0], 5, 100);
 	i = 0;
-	while (paths[i])
+	if (ft_strncmp("./", command, 2) != 0)
 	{
-		path = ft_strjoin (paths[i], "/");
-		path = ft_strjoin (path, command);
-		flags[0] = path;
-		//printf("path final: %s\n", path);
-		execve(path, flags, env);
-		i++;
+		while (paths[i])
+		{
+			path = ft_strjoin (paths[i], "/");
+			path = ft_strjoin (path, command);
+			flags[0] = path;
+			execve(path, flags, env);
+			i++;
+		}
 	}
-	printf("ejecuto path directo: %s\n", command);
-	execve(command, flags, env);
-	close()
+	if (execve(command, flags, env) == -1)
+	{
+		if (access(command, F_OK))
+			perror("El comando dado no existe en el PATH");
+		else
+			perror("No tienes permisos para ejecutar este comando");
+	}
+	exit(1);
 }

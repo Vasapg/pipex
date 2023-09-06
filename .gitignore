@@ -1,0 +1,10 @@
+*.o
+src/scripts/*
+fake_in
+fake_out
+in
+out
+.vscode
+*.a
+pipex
+hola

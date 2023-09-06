@@ -11,31 +11,43 @@
 /* ************************************************************************** */
 #include "pipex.h"
 
-void check_acces(char *argv[], int counter, int fd[2])
+void	manage_fd(int input, int output, int fd[2])
 {
-	int		input;
-	int		output;
-	
-	input = IN;
-	output = OUT;
-	if(counter == 0 && access(argv[1], R_OK) != -1)
-		input = open(argv[1], O_RDONLY, 0777);
-	else if (counter == 0)
-		perror("No existe permiso de lectura para el fichero de entrada");
-	else
-		input = fd[IN];
-	if (counter == 1 && access(argv[4], W_OK) != -1)
-		output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	else if (counter == 1)
-		perror("No existe permiso de lectura para el fichero de salida");
-	else
-		output = fd[OUT];
 	close(IN);
 	dup(input);
 	close(OUT);
 	dup(output);
 	close(fd[IN]);
 	close(fd[OUT]);
+}
+
+int	check_acces(char *argv[], int counter, int fd[2])
+{
+	int		input;
+	int		output;
+
+	input = IN;
+	output = OUT;
+	if (counter == 0 && access(argv[1], R_OK) != -1)
+		input = open(argv[1], O_RDONLY, 0777);
+	else if (counter == 0)
+	{
+		perror("No existe permiso de lectura para el fichero de entrada");
+		input = -1;
+	}
+	else
+		input = fd[IN];
+	if (counter == 1 && access(argv[4], W_OK) != -1)
+		output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	else if (counter == 1)
+	{
+		perror("No existe permiso de lectura para el fichero de salida");
+		input = -1;
+	}
+	else
+		output = fd[OUT];
+	manage_fd(input, output, fd);
+	return (input);
 }
 
 int	ft_pipex(int counter, int fd[2], char *argv[], char **env)
@@ -46,7 +58,8 @@ int	ft_pipex(int counter, int fd[2], char *argv[], char **env)
 	pid = fork();
 	if (pid == 0)
 	{
-		check_acces(argv, counter, fd);
+		if (check_acces(argv, counter, fd) == -1)
+			exit(1);
 		flags = flags_builder(argv[counter + 2]);
 		execute_command(env, flags[0], flags);
 	}
@@ -58,7 +71,7 @@ int	main(int argc, char *argv[], char **env)
 	int	err;
 	int	fd[2];
 	int	i;
-	int	pid;
+	int	*status;
 
 	i = 0;
 	if (argc != 5)
@@ -66,18 +79,19 @@ int	main(int argc, char *argv[], char **env)
 		perror("Error, uso: archivo 1 comando 1 comando 2 archivo 2");
 		return (-1);
 	}
-	err = pipe(fd);
-	if (err == -1)
+	if (pipe(fd) == -1)
 	{
 		perror("Error al crear la pipe");
 		return (-1);
 	}
 	while (i < 2)
 	{
-		pid = ft_pipex(i, fd, argv, env);
+		err = ft_pipex(i, fd, argv, env);
 		i++;
 	}
+	status = malloc(sizeof(int));
 	close(fd[IN]);
 	close(fd[OUT]);
-	waitpid(pid, 0, 0);
+	waitpid(err, status, 0);
+	exit(*status);
 }
