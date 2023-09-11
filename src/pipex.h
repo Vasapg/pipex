@@ -26,6 +26,6 @@ int		main(int argc, char *argv[], char **env);
 char	**flags_builder(char *command);
 char	*get_path(char **env);
 void	execute_command(char **env, char *const command, char **flags);
-int		check_acces(char *argv[], int counter, int fd[2]);
+int		check_access(char *argv[], int counter, int fd[2]);
 void	manage_fd(int input, int output, int fd[2]);
 #endif

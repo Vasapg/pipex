@@ -6,7 +6,7 @@
 #    By: vsanz-ar <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/28 13:51:49 by vsanz-ar          #+#    #+#              #
-#    Updated: 2023/09/06 18:43:47 by vsanz-ar         ###   ########.fr        #
+#    Updated: 2023/09/07 17:08:14 by vsanz.ar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ LIBA = ./libft/libft.a
 #----------------------------------------PIPEX MAKE VARS------------------------------------------------
 NAME = pipex.a
 FILES = pipex.c pipex_utils.c 
-CFLAGS = -Wall -Wextra -Werror 
+CFLAGS = -Wall -Wextra -Werror -g 
 CC = gcc
 RM = rm -f
 FOBJ = ${FILES:.c=.o} 
