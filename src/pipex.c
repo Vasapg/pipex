@@ -23,7 +23,7 @@ void	manage_fd(int input, int output, int fd[2])
 	close(output);
 }
 
-int	check_access(char *argv[], int counter, int fd[2])
+int	check_access(char *argv[], int counter, int fd[2], int argc)
 {
 	int		input;
 	int		output;
@@ -37,10 +37,10 @@ int	check_access(char *argv[], int counter, int fd[2])
 	else
 		input = fd[IN];
 	if (counter == 1 && access(argv[4], W_OK) != -1)
-		output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	else if (counter == 1 && access(argv[4], F_OK) == -1)
-		output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	else if (counter == 1)
+		output = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	else if (counter == (argc - 4) && access(argv[4], F_OK) == -1)
+		output = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	else if (counter == (argc - 4))
 		input = -1;
 	else
 		output = fd[OUT];
@@ -50,19 +50,19 @@ int	check_access(char *argv[], int counter, int fd[2])
 	return (input);
 }
 
-int	ft_pipex(int fd[2], char *argv[], char **env)
+int	ft_pipex(int fd[2], char *argv[], char **env, int argc)
 {
 	int		pid;
 	char	**flags;
 	int		counter;
 
 	counter = 0;
-	while (counter < 2)
+	while (counter < argc - 3)
 	{
 		pid = fork();
 		if (pid == 0)
 		{
-			if (check_access(argv, counter, fd) == -1)
+			if (check_access(argv, counter, fd, argc) == -1)
 				exit(1);
 			flags = flags_builder(argv[counter + 2]);
 			execute_command(env, flags[0], flags);
@@ -91,7 +91,7 @@ int	main(int argc, char *argv[], char **env)
 		perror("Error al crear la pipe");
 		return (-1);
 	}
-	err = ft_pipex(fd, argv, env);
+	err = ft_pipex(fd, argv, env, argc);
 	while ((wait(&err)) > 0)
 		wait(&err);
 	if (WIFEXITED(status))
