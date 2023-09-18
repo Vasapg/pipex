@@ -9,7 +9,7 @@
 /*   Updated: 2023/08/05 20:06:58 by vsanz-ar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "pipex.h"
+#include "pipex_bonus.h"
 
 char	**flags_builder(char *command)
 {

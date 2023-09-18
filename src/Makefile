@@ -50,7 +50,7 @@ re: fclean all
 bonus: ${FOBJ} ${BOBJ}
 	make
 	ar -rcs ${NAME} ${FOBJ} ${BOBJ}
-	${CC} pipex_bonus.c pipex_utils_bonus.c ${NAME} -o pipex
+	${CC} ${CFLAGS} pipex_bonus.c pipex_utils_bonus.c ${NAME} -o pipex
 
 .PHONY: all clean re fclean bonus libft 
 
