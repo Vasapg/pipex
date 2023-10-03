@@ -21,11 +21,19 @@
 # define IN 0
 # define OUT 1
 
-int     ft_pipex(char *argv[], char **env, int argc);
+typedef struct pipe_info
+{
+    int in;
+    int out;
+    int saved;
+	int max;
+} pipe_info;
+
+int		ft_pipex(char *argv[], char **env, struct pipe_info);
 int		main(int argc, char *argv[], char **env);
 char	**flags_builder(char *command);
 char	*get_path(char **env);
 void	execute_command(char **env, char *const command, char **flags);
-int     check_access(char *argv[], int argc, int fd[2], int counter);
+void	init_inf(pipe_info *info, const char *in, const char *out, int argc);
 void	manage_fd(int input, int output, int fd[2]);
 #endif

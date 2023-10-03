@@ -60,7 +60,6 @@ void	execute_command(char **env, char *const command, char **flags)
 	}
 	if (execve(command, flags, env) == -1)
 	{
-		if (access(command, F_OK))
 			perror("El comando no pudo ser ejecutado");
 	}
 	exit(1);
