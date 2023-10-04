@@ -23,17 +23,19 @@
 
 typedef struct pipe_info
 {
-    int in;
-    int out;
-    int saved;
-	int max;
-} pipe_info;
+	int		in;
+	int		out;
+	int		saved;
+	int		max;
+	char	**env;
+}	t_pipe_info;
 
-int		ft_pipex(char *argv[], char **env, struct pipe_info);
+void	ft_pipex(char *argv[], t_pipe_info info);
 int		main(int argc, char *argv[], char **env);
 char	**flags_builder(char *command);
 char	*get_path(char **env);
 void	execute_command(char **env, char *const command, char **flags);
-void	init_inf(pipe_info *info, const char *in, const char *out, int argc);
+void	init_inf(t_pipe_info *info, const char *in,
+			const char *out, char **env);
 void	manage_fd(int input, int output, int fd[2]);
 #endif

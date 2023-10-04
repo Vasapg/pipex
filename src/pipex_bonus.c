@@ -11,9 +11,9 @@
 /* ************************************************************************** */
 #include "pipex_bonus.h"
 
-void	init_inf(pipe_info *info, const char *in, const char *out, int argc)
+void	init_inf(t_pipe_info *info, const char *in, const char *out, char **env)
 {
-	info->max = argc - 3;
+	info->env = env;
 	if (access(in, R_OK) != -1)
 		info->in = open(in, O_RDONLY, 0777);
 	else
@@ -32,24 +32,29 @@ void	init_inf(pipe_info *info, const char *in, const char *out, int argc)
 	}
 }
 
-void	manage_fd(int input, int output, int fd[2])
+void	execute_child(t_pipe_info info, char *argv [], int counter, int fd[2])
 {
-	close(IN);
-	dup(input);
-	close(OUT);
-	dup(output);
-	close(fd[IN]);
-	close(fd[OUT]);
-	close(input);
-	close(output);
+	char	**flags;
+
+	flags = flags_builder(argv[counter + 2]);
+	if (counter == 0)
+		manage_fd(info.in, fd[OUT], fd);
+	else if (counter == (info.max - 1))
+		manage_fd(info.saved, info.out, fd);
+	else
+		manage_fd(info.saved, fd[OUT], fd);
+	if (!(info.in == -1 && counter == 0)
+		&& !(info.out == -1 && counter == (info.max - 1)))
+		execute_command(info.env, flags[0], flags);
+	else
+		exit(1);
 }
 
-int	ft_pipex(char *argv[], char **env, pipe_info info)
+void	ft_pipex(char *argv[], t_pipe_info info)
 {
-	int counter;
-	int fd[2];
-	int	pid;
-	char **flags;
+	int		counter;
+	int		fd[2];
+	int		pid;
 
 	counter = 0;
 	while (counter < info.max)
@@ -57,24 +62,11 @@ int	ft_pipex(char *argv[], char **env, pipe_info info)
 		pipe(fd);
 		pid = fork();
 		if (pid == 0)
-		{
-			flags = flags_builder(argv[counter + 2]);
-			if (counter == 0)
-				manage_fd(info.in, fd[OUT], fd);
-			else if (counter == (info.max - 1))
-				manage_fd(info.saved, info.out, fd);
-			else 
-				manage_fd(info.saved, fd[OUT], fd);
-			if (!(info.in == -1 && counter == 0) && !(info.out == -1 && counter == (info.max - 1)))
-				execute_command(env, flags[0], flags);
-			else
-				exit(1);
-		}
+			execute_child(info, argv, counter, fd);
 		info.saved = fd[IN];
 		close(fd[OUT]);
 		counter++;
 	}
-	return 1;
 }
 
 void	fre(void)
@@ -84,9 +76,9 @@ void	fre(void)
 
 int	main(int argc, char *argv[], char **env)
 {
-	int	err;
-	int	status;
-	pipe_info *pipe_inf; 
+	int			err;
+	int			status;
+	t_pipe_info	*info;
 
 	status = 0;
 	if (argc < 5)
@@ -94,17 +86,15 @@ int	main(int argc, char *argv[], char **env)
 		perror("Error, uso: archivo 1 comando 1 ... comando X archivo 2");
 		return (-1);
 	}
-	pipe_inf = malloc(sizeof(struct pipe_info));
-	init_inf(pipe_inf, argv[1], argv[argc - 1], argc);
-	ft_pipex(argv, env, *pipe_inf);
-	free(pipe_inf);
+	info = malloc(sizeof(t_pipe_info));
+	init_inf(info, argv[1], argv[argc - 1], env);
+	info->max = (argc - 3);
+	ft_pipex(argv, *info);
+	free(info);
 	while ((wait(&err)) > 0)
 		wait(&err);
 	if (WIFEXITED(status))
-	{
-		//fre();
 		exit(WEXITSTATUS(status));
-	}
 	fre();
 	exit(1);
 }

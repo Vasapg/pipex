@@ -35,6 +35,18 @@ char	*get_path(char **env)
 	return (NULL);
 }
 
+void	manage_fd(int input, int output, int fd[2])
+{
+	close(IN);
+	dup(input);
+	close(OUT);
+	dup(output);
+	close(fd[IN]);
+	close(fd[OUT]);
+	close(input);
+	close(output);
+}
+
 void	execute_command(char **env, char *const command, char **flags)
 {
 	int		i;
@@ -59,8 +71,6 @@ void	execute_command(char **env, char *const command, char **flags)
 		}
 	}
 	if (execve(command, flags, env) == -1)
-	{
-			perror("El comando no pudo ser ejecutado");
-	}
+		perror("El comando no pudo ser ejecutado");
 	exit(1);
 }

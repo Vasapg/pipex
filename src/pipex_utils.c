@@ -50,18 +50,14 @@ void	execute_command(char **env, char *const command, char **flags)
 		{
 			while (paths[i])
 			{
-				path = ft_strjoin (paths[i], "/");
+				path = ft_strjoin (paths[i++], "/");
 				path = ft_strjoin (path, command);
 				flags[0] = path;
 				execve(path, flags, env);
-				i++;
 			}
 		}
 	}
 	if (execve(command, flags, env) == -1)
-	{
-		if (access(command, F_OK))
-			perror("El comando no pudo ser ejecutado");
-	}
+		perror("El comando no pudo ser ejecutado");
 	exit(1);
 }
