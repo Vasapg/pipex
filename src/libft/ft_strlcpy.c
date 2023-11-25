@@ -9,7 +9,7 @@
 /*   Updated: 2022/12/28 12:49:17 by vsanz-ar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include"libft.h"
+#include "libft.h"
 
 size_t	ft_strlcpy(char *restrict dst, const char *restrict src, size_t dstsize)
 {

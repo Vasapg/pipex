@@ -9,7 +9,7 @@
 /*   Updated: 2023/08/05 20:23:52 by vsanz-ar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include"libft.h"
+#include "libft.h"
 
 void	ft_putstr_fd(char *s, int fd)
 {

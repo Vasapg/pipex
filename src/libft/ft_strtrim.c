@@ -9,7 +9,7 @@
 /*   Updated: 2022/12/28 14:24:16 by vsanz-ar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include"libft.h"
+#include "libft.h"
 
 void	fill_string(char const *s1, char *s2, int k, int i)
 {

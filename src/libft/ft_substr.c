@@ -9,7 +9,7 @@
 /*   Updated: 2022/12/28 14:40:54 by vsanz-ar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include"libft.h"
+#include "libft.h"
 
 void	aux_fill(const char *s, int start, size_t len, char *res)
 {

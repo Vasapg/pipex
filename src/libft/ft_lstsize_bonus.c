@@ -9,7 +9,7 @@
 /*   Updated: 2022/12/28 12:42:57 by vsanz-ar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include"libft.h"
+#include "libft.h"
 
 int	ft_lstsize(t_list *lst)
 {
