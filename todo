@@ -1,7 +1,0 @@
-- Devolver estado de ultimo comando ✅
-- Revisar mensajes de error
-- Path absolutos sin la variable PATH en el env no funcionan ✅
-- ./ls no deberia funcionar ✅
-- Crear fichero de salida si no existe ✅
-- Comandos nulos no se detectan ✅
-- No espera los inputs de usuario (cosas raras pasan)

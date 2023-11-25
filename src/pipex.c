@@ -11,90 +11,100 @@
 /* ************************************************************************** */
 #include "pipex.h"
 
-void	manage_fd(int input, int output, int fd[2])
+void	error_msg(const char *file, const char *error)
 {
-	close(IN);
-	dup(input);
-	close(OUT);
-	dup(output);
-	close(fd[IN]);
-	close(fd[OUT]);
-	close(input);
-	close(output);
+	char	*msg;
+
+	msg = ft_strjoin(file, error);
+	ft_putstr_fd("pipex: ", 2);
+	ft_putendl_fd(msg, 2);
+	free(msg);
 }
 
-int	check_access(char *argv[], int counter, int fd[2], int argc)
+void	init_inf(t_pipe_info *info, const char *in, const char *out, char **env)
 {
-	int		input;
-	int		output;
-
-	input = IN;
-	output = OUT;
-	if (counter == 0 && access(argv[1], R_OK) != -1)
-		input = open(argv[1], O_RDONLY, 0777);
-	else if (counter == 0)
-		input = -1;
+	info->env = env;
+	if (access(in, R_OK) != -1)
+		info->in = open(in, O_RDONLY, 0777);
 	else
-		input = fd[IN];
-	if (counter == 1 && access(argv[4], W_OK) != -1)
-		output = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	else if (counter == (argc - 4) && access(argv[4], F_OK) == -1)
-		output = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	else if (counter == (argc - 4))
-		input = -1;
+	{
+		info->in = -1;
+		if (access(in, F_OK) == -1)
+			error_msg(in, ": No such file or directory");
+		else
+			error_msg(in, ": Permission denied");
+	}
+	if (access(out, W_OK) != -1)
+		info->out = open(out, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	else if (access(out, F_OK) == -1)
+		info->out = open(out, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	else
-		output = fd[OUT];
-	if (input == -1)
-		perror("No se tienen permisos suficientes sobre los ficheros dados");
-	manage_fd(input, output, fd);
-	return (input);
+	{
+		info->out = -1;
+		error_msg(out, ": Permission denied");
+	}
 }
 
-int	ft_pipex(int fd[2], char *argv[], char **env, int argc)
+void	execute_child(t_pipe_info info, char *argv [], int counter, int fd[2])
 {
-	int		pid;
 	char	**flags;
+
+	flags = flags_builder(argv[counter + 2]);
+	if (counter == 0)
+		manage_fd(info.in, fd[OUT], fd);
+	else if (counter == (info.max - 1))
+		manage_fd(info.saved, info.out, fd);
+	else
+		manage_fd(info.saved, fd[OUT], fd);
+	if (!(info.in == -1 && counter == 0)
+		&& !(info.out == -1 && counter == (info.max - 1)))
+		execute_command(info.env, flags[0], flags);
+	else
+		exit(1);
+}
+
+int	ft_pipex(char *argv[], t_pipe_info info)
+{
 	int		counter;
+	int		fd[2];
+	int		pid;
 
 	counter = 0;
-	while (counter < argc - 3)
+	while (counter < info.max)
 	{
+		if (pipe(fd) == -1)
+			return (-1);
 		pid = fork();
+		if (pid == -1)
+			return (-1);
 		if (pid == 0)
-		{
-			if (check_access(argv, counter, fd, argc) == -1)
-				exit(1);
-			flags = flags_builder(argv[counter + 2]);
-			execute_command(env, flags[0], flags);
-		}
+			execute_child(info, argv, counter, fd);
+		info.saved = fd[IN];
+		close(fd[OUT]);
 		counter++;
 	}
-	close(fd[IN]);
-	close(fd[OUT]);
 	return (pid);
 }
 
 int	main(int argc, char *argv[], char **env)
 {
-	int	err;
-	int	fd[2];
-	int	status;
+	int			err;
+	t_pipe_info	*info;
 
-	status = 0;
 	if (argc != 5)
 	{
-		perror("Error, uso: archivo 1 comando 1 comando 2 archivo 2");
+		ft_putstr_fd("Error, uso: file 1 cmd 1 cmd 2 file 2\n", 2);
 		return (-1);
 	}
-	if (pipe(fd) == -1)
-	{
-		perror("Error al crear la pipe");
-		return (-1);
-	}
-	err = ft_pipex(fd, argv, env, argc);
-	while ((wait(&err)) > 0)
-		wait(&err);
-	if (WIFEXITED(status))
-		exit(WEXITSTATUS(status));
-	exit(-1);
+	info = malloc(sizeof(t_pipe_info));
+	init_inf(info, argv[1], argv[argc - 1], env);
+	info->max = (argc - 3);
+	err = ft_pipex(argv, *info);
+	free(info);
+	if (err == -1)
+		return (0);
+	wait(&err);
+	if (WIFEXITED(err))
+		return (WEXITSTATUS(err));
+	return (1);
 }

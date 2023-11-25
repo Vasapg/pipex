@@ -35,6 +35,40 @@ char	*get_path(char **env)
 	return (NULL);
 }
 
+void	manage_fd(int input, int output, int fd[2])
+{
+	dup2(input, STDIN_FILENO);
+	close(input);
+	dup2(output, STDOUT_FILENO);
+	close(output);
+	close(fd[IN]);
+	close(fd[OUT]);
+}
+
+void	handle_error(char **flags, char **paths, char *command)
+{
+	int	i;
+
+	if (access(command, X_OK) == -1)
+		error_msg(command, ": Permission denied");
+	else
+		error_msg(command, ": command not found");
+	i = 0;
+	while (flags[i])
+	{
+		free(flags[i]);
+		i++;
+	}
+	i = 0;
+	free(flags);
+	while (paths[i])
+	{
+		free(paths[i]);
+		i++;
+	}
+	free(paths);
+}
+
 void	execute_command(char **env, char *const command, char **flags)
 {
 	int		i;
@@ -50,14 +84,15 @@ void	execute_command(char **env, char *const command, char **flags)
 		{
 			while (paths[i])
 			{
-				path = ft_strjoin (paths[i++], "/");
+				path = ft_strjoin (paths[i], "/");
 				path = ft_strjoin (path, command);
 				flags[0] = path;
 				execve(path, flags, env);
+				i++;
 			}
 		}
 	}
 	if (execve(command, flags, env) == -1)
-		perror("El comando no pudo ser ejecutado");
+		handle_error(flags, paths, command);
 	exit(1);
 }

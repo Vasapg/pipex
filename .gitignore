@@ -3,8 +3,10 @@ src/scripts/*
 fake_in
 fake_out
 in
-out
+src/out
 .vscode
 *.a
 pipex
 hola
+pipex-tester/*
+pipex.dSYM

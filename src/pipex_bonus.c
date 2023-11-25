@@ -19,7 +19,7 @@ void	init_inf(t_pipe_info *info, const char *in, const char *out, char **env)
 	else
 	{
 		info->in = -1;
-		perror("Not enough permissions to read the input file");
+		perror("pipex");
 	}
 	if (access(out, W_OK) != -1)
 		info->out = open(out, O_WRONLY | O_CREAT | O_TRUNC, 0777);
@@ -28,7 +28,7 @@ void	init_inf(t_pipe_info *info, const char *in, const char *out, char **env)
 	else
 	{
 		info->out = -1;
-		perror("The exit file does not exist or permissions are not enough");
+		perror("pipex");
 	}
 }
 
@@ -50,7 +50,7 @@ void	execute_child(t_pipe_info info, char *argv [], int counter, int fd[2])
 		exit(1);
 }
 
-void	ft_pipex(char *argv[], t_pipe_info info)
+int	ft_pipex(char *argv[], t_pipe_info info)
 {
 	int		counter;
 	int		fd[2];
@@ -59,42 +59,39 @@ void	ft_pipex(char *argv[], t_pipe_info info)
 	counter = 0;
 	while (counter < info.max)
 	{
-		pipe(fd);
+		if (pipe(fd) == -1)
+			return (-1);
 		pid = fork();
+		if (pid == -1)
+			return (-1);
 		if (pid == 0)
 			execute_child(info, argv, counter, fd);
 		info.saved = fd[IN];
 		close(fd[OUT]);
 		counter++;
 	}
-}
-
-void	fre(void)
-{
-	system("leaks -q pipex");
+	return (pid);
 }
 
 int	main(int argc, char *argv[], char **env)
 {
 	int			err;
-	int			status;
 	t_pipe_info	*info;
 
-	status = 0;
 	if (argc < 5)
 	{
-		perror("Error, uso: archivo 1 comando 1 ... comando X archivo 2");
+		ft_putstr_fd("Error, uso: file 1 cmd 1 cmd 2 file 2\n", 2);
 		return (-1);
 	}
 	info = malloc(sizeof(t_pipe_info));
 	init_inf(info, argv[1], argv[argc - 1], env);
 	info->max = (argc - 3);
-	ft_pipex(argv, *info);
+	err = ft_pipex(argv, *info);
 	free(info);
-	while ((wait(&err)) > 0)
-		wait(&err);
-	if (WIFEXITED(status))
-		exit(WEXITSTATUS(status));
-	fre();
-	exit(1);
+	if (err == -1)
+		return (0);
+	wait(&err);
+	if (WIFEXITED(err))
+		return (WEXITSTATUS(err));
+	return (1);
 }

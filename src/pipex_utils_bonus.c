@@ -37,14 +37,32 @@ char	*get_path(char **env)
 
 void	manage_fd(int input, int output, int fd[2])
 {
-	close(IN);
-	dup(input);
-	close(OUT);
-	dup(output);
+	dup2(input, STDIN_FILENO);
+	close(input);
+	dup2(output, STDOUT_FILENO);
+	close(output);
 	close(fd[IN]);
 	close(fd[OUT]);
-	close(input);
-	close(output);
+}
+
+void	free_str(char **flags, char **paths)
+{
+	int	i;
+
+	i = 0;
+	while (flags[i])
+	{
+		free(flags[i]);
+		i++;
+	}
+	i = 0;
+	free(flags);
+	while (paths[i])
+	{
+		free(paths[i]);
+		i++;
+	}
+	free(paths);
 }
 
 void	execute_command(char **env, char *const command, char **flags)
@@ -71,6 +89,7 @@ void	execute_command(char **env, char *const command, char **flags)
 		}
 	}
 	if (execve(command, flags, env) == -1)
-		perror("El comando no pudo ser ejecutado");
+		ft_putstr_fd("pipex: command not found\n", 2);
+	free_str(flags, paths);
 	exit(1);
 }
