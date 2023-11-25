@@ -49,10 +49,10 @@ void	handle_error(char **flags, char **paths, char *command)
 {
 	int	i;
 
-	if (access(command, X_OK) == -1)
-		error_msg(command, ": Permission denied");
-	else
+	if (access(command, F_OK) == -1)
 		error_msg(command, ": command not found");
+	else
+		error_msg(command, ": Permission denied");
 	i = 0;
 	while (flags[i])
 	{

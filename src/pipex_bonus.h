@@ -38,5 +38,6 @@ void	execute_command(char **env, char *const command, char **flags);
 void	init_inf(t_pipe_info *info, const char *in,
 			const char *out, char **env);
 void	manage_fd(int input, int output, int fd[2]);
-void	free_str(char **flags, char **paths);
+void	handle_error(char **flags, char **paths, char *command);
+void	error_msg(const char *file, const char *error);
 #endif

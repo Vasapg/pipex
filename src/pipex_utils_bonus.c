@@ -45,10 +45,14 @@ void	manage_fd(int input, int output, int fd[2])
 	close(fd[OUT]);
 }
 
-void	free_str(char **flags, char **paths)
+void	handle_error(char **flags, char **paths, char *command)
 {
 	int	i;
 
+	if (access(command, F_OK) == -1)
+		error_msg(command, ": command not found");
+	else
+		error_msg(command, ": Permission denied");
 	i = 0;
 	while (flags[i])
 	{
@@ -89,7 +93,6 @@ void	execute_command(char **env, char *const command, char **flags)
 		}
 	}
 	if (execve(command, flags, env) == -1)
-		ft_putstr_fd("pipex: command not found\n", 2);
-	free_str(flags, paths);
+		handle_error(flags, paths, command);
 	exit(1);
 }

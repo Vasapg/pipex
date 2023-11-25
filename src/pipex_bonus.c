@@ -11,6 +11,16 @@
 /* ************************************************************************** */
 #include "pipex_bonus.h"
 
+void	error_msg(const char *file, const char *error)
+{
+	ft_putstr_fd("pipex: ", 2);
+	if (file == NULL)
+		ft_putstr_fd(" ", 2);
+	else
+		ft_putstr_fd((char *)file, 2);
+	ft_putendl_fd((char *)error, 2);
+}
+
 void	init_inf(t_pipe_info *info, const char *in, const char *out, char **env)
 {
 	info->env = env;
@@ -19,7 +29,10 @@ void	init_inf(t_pipe_info *info, const char *in, const char *out, char **env)
 	else
 	{
 		info->in = -1;
-		perror("pipex");
+		if (access(in, F_OK) == -1)
+			error_msg(in, ": No such file or directory");
+		else
+			error_msg(in, ": Permission denied");
 	}
 	if (access(out, W_OK) != -1)
 		info->out = open(out, O_WRONLY | O_CREAT | O_TRUNC, 0777);
@@ -28,7 +41,7 @@ void	init_inf(t_pipe_info *info, const char *in, const char *out, char **env)
 	else
 	{
 		info->out = -1;
-		perror("pipex");
+		error_msg(out, ": Permission denied");
 	}
 }
 

@@ -13,12 +13,12 @@
 
 void	error_msg(const char *file, const char *error)
 {
-	char	*msg;
-
-	msg = ft_strjoin(file, error);
 	ft_putstr_fd("pipex: ", 2);
-	ft_putendl_fd(msg, 2);
-	free(msg);
+	if (file == NULL)
+		ft_putstr_fd(" ", 2);
+	else
+		ft_putstr_fd((char *)file, 2);
+	ft_putendl_fd((char *)error, 2);
 }
 
 void	init_inf(t_pipe_info *info, const char *in, const char *out, char **env)
